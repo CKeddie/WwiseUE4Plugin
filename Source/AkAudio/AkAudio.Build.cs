@@ -49,7 +49,8 @@ public class AkAudio : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "SlateCore",
-                "NetworkReplayStreaming"
+                "NetworkReplayStreaming",
+                "Projects"
             });
 
         string akDir = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../ThirdParty"));
@@ -80,10 +81,6 @@ public class AkAudio : ModuleRules
             string VSVersion;
             switch (WindowsPlatform.Compiler)
             {
-                case WindowsCompiler.VisualStudio2012:
-                    VSVersion = "vc110";
-                    break;
-
                 case WindowsCompiler.VisualStudio2013:
                     VSVersion = "vc120";
                     break;
@@ -166,7 +163,6 @@ public class AkAudio : ModuleRules
 
             PublicAdditionalLibraries.Add("dsound.lib");
             PublicAdditionalLibraries.Add("dxguid.lib");
-            PublicAdditionalLibraries.Add("AkMP3Source.lib");
             PublicAdditionalLibraries.Add("Msacm32.lib");
             PublicAdditionalLibraries.Add("XInput.lib");
         }

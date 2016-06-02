@@ -123,11 +123,11 @@ void UAkGameplayStatics::PostEventAtLocation( class UAkAudioEvent* in_pAkEvent, 
 	{
 		if (in_pAkEvent != NULL)
 		{
-			AkAudioDevice->PostEventAtLocation(in_pAkEvent, Location, Orientation.Vector(), GEngine->GetWorldFromContextObject(WorldContextObject));
+			AkAudioDevice->PostEventAtLocation(in_pAkEvent, Location, Orientation, GEngine->GetWorldFromContextObject(WorldContextObject));
 		}
 		else
 		{
-			AkAudioDevice->PostEventAtLocation(EventName, Location, Orientation.Vector(), GEngine->GetWorldFromContextObject(WorldContextObject));
+			AkAudioDevice->PostEventAtLocation(EventName, Location, Orientation, GEngine->GetWorldFromContextObject(WorldContextObject));
 		}
 	}
 }
@@ -138,7 +138,7 @@ void UAkGameplayStatics::PostEventAtLocationByName( const FString& EventName, FV
 	UWorld* CurrentWorld = GEngine->GetWorldFromContextObject(WorldContextObject);
 	if( CurrentWorld->AllowAudioPlayback() && AkAudioDevice )
 	{
-		AkAudioDevice->PostEventAtLocation(EventName, Location, Orientation.Vector(), GEngine->GetWorldFromContextObject(WorldContextObject) );
+		AkAudioDevice->PostEventAtLocation(EventName, Location, Orientation, GEngine->GetWorldFromContextObject(WorldContextObject) );
 	}
 }
 

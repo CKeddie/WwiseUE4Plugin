@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "AkComponent.generated.h"
 
 /*------------------------------------------------------------------------------------
@@ -158,7 +159,11 @@ public:
 
 	// Begin USceneComponent Interface
 	virtual void Activate(bool bReset=false) override;
-	virtual void OnUpdateTransform(bool bSkipPhysicsMove, ETeleportType Teleport = ETeleportType::None) override;
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION <= 11
+	virtual void OnUpdateTransform(bool bSkipPhysicsMove, ETeleportType Teleport = ETeleportType::None) override; 
+#else
+	virtual void OnUpdateTransform(EUpdateTransformFlags UpdateTransformFlags, ETeleportType Teleport = ETeleportType::None) override;
+#endif
 	// End USceneComponent Interface
 
 	/** Gets all AkReverbVolumes at the AkComponent's current location, and puts them in a list

@@ -145,13 +145,13 @@ class AKAUDIO_API UAkGameplayStatics : public UBlueprintFunctionLibrary
 	/**
 	 * Start all Ak ambient sounds.
 	 */
-	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkAmbientSound", meta=(WorldContext="WorldContextObject"))
+	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkAmbientSound", meta=(HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static void StartAllAmbientSounds(UObject* WorldContextObject);
 	
 	/**
 	 * Stop all Ak ambient sounds.
 	 */
-	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkAmbientSound", meta=(WorldContext="WorldContextObject"))
+	UFUNCTION(BlueprintCallable, Category="Audiokinetic|AkAmbientSound", meta=(HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
 	static void StopAllAmbientSounds(UObject* WorldContextObject);
 
 	

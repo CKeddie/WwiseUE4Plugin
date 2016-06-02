@@ -229,7 +229,8 @@ void UAkComponent::OnUnregister()
 	// called from AActor::ClearComponents when an actor gets destroyed which is not usually what we want for one-
 	// shot sounds.
 	AActor* Owner = GetOwner();
-	if( !Owner || StopWhenOwnerDestroyed )
+	UWorld* CurrentWorld = GetWorld();
+	if( !Owner || !CurrentWorld || StopWhenOwnerDestroyed || CurrentWorld->bIsTearingDown || (Owner->GetClass() == APlayerController::StaticClass() && CurrentWorld->WorldType == EWorldType::PIE))
 	{
 		Stop();
 	}
@@ -470,7 +471,7 @@ static int32 FindCurrentAkReverbVolumeInNewlist(TArray<AAkReverbVolume*> FoundVo
 	return FoundVolumes.IndexOfByPredicate( FAkCurrentReverbVolumeMatcher(AuxBusId) );
 }
 
-void FindAkReverbVolumesAtLocation(FVector Loc, TArray<AAkReverbVolume*>& FoundVolumes, const UWorld* World);
+void FindAkReverbVolumesAtLocation(FVector Loc, TArray<AAkReverbVolume*>& FoundVolumes, const UWorld* in_World);
 void UAkComponent::UpdateAkReverbVolumeList( FVector Loc )
 {
 	TArray<AAkReverbVolume*> FoundVolumes;
@@ -515,8 +516,8 @@ void UAkComponent::UpdateGameObjectPosition()
 	if ( bIsActive && AkAudioDevice )
 	{
 		AkSoundPosition soundpos;
-		FAkAudioDevice::FVectorToAKVector( ComponentToWorld.GetTranslation(), soundpos.Position );
-		FAkAudioDevice::FVectorToAKVector( ComponentToWorld.GetUnitAxis( EAxis::X ), soundpos.Orientation );
+		FAkAudioDevice::FVectorsToAKTransform(ComponentToWorld.GetTranslation(), ComponentToWorld.GetUnitAxis(EAxis::X), ComponentToWorld.GetUnitAxis(EAxis::Z), soundpos);
+
 		AK::SoundEngine::SetPosition( (AkGameObjectID) this, soundpos );
 
 		// Find and apply all AkReverbVolumes at this location
@@ -553,10 +554,11 @@ void UAkComponent::SetOcclusion(const float DeltaTime)
 		}
 	}
 
+	UWorld* CurrentWorld = GetWorld();
 	// Compute occlusion only when needed.
 	// Have to have "LastOcclutionRefresh == -1" because GetWorld() might return nullptr in UAkComponent's constructor,
 	// preventing us from initializing it to something smart.
-	if( (World->GetTimeSeconds() - LastOcclusionRefresh) < OcclusionRefreshInterval && LastOcclusionRefresh != -1 )
+	if( !CurrentWorld || ((CurrentWorld->GetTimeSeconds() - LastOcclusionRefresh) < OcclusionRefreshInterval && LastOcclusionRefresh != -1) )
 	{
 		return;
 	}
@@ -592,7 +594,8 @@ void UAkComponent::CalculateOcclusionValues(bool CalledFromTick)
 			ListenerPosition = AkAudioDevice->GetListenerPosition(ListenerIdx);
 		}
 		FVector SourcePosition = GetComponentLocation();
-		APlayerController* PlayerController = World->GetFirstPlayerController();
+		UWorld* CurrentWorld = GetWorld();
+		APlayerController* PlayerController = CurrentWorld ? CurrentWorld->GetFirstPlayerController() : NULL;
 		APawn* ActorToIgnore = NULL;
 		if( PlayerController != NULL )
 		{

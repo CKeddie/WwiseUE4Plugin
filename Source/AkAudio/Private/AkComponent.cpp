@@ -230,7 +230,7 @@ void UAkComponent::OnUnregister()
 	// shot sounds.
 	AActor* Owner = GetOwner();
 	UWorld* CurrentWorld = GetWorld();
-	if( !Owner || !CurrentWorld || StopWhenOwnerDestroyed || CurrentWorld->bIsTearingDown || (Owner->GetClass() == APlayerController::StaticClass() && CurrentWorld->WorldType == EWorldType::PIE))
+	if( !Owner || StopWhenOwnerDestroyed || (CurrentWorld && CurrentWorld->bIsTearingDown))
 	{
 		Stop();
 	}
@@ -522,8 +522,8 @@ void UAkComponent::UpdateGameObjectPosition()
 	if ( bIsActive && AkAudioDevice )
 	{
 		AkSoundPosition soundpos;
-		FAkAudioDevice::FVectorsToAKTransform(ComponentToWorld.GetTranslation(), ComponentToWorld.GetUnitAxis(EAxis::X), ComponentToWorld.GetUnitAxis(EAxis::Z), soundpos);
-
+		FAkAudioDevice::FVectorToAKVector( ComponentToWorld.GetTranslation(), soundpos.Position );
+		FAkAudioDevice::FVectorToAKVector( ComponentToWorld.GetUnitAxis( EAxis::X ), soundpos.Orientation );
 		AK::SoundEngine::SetPosition( (AkGameObjectID) this, soundpos );
 
 		// Find and apply all AkReverbVolumes at this location

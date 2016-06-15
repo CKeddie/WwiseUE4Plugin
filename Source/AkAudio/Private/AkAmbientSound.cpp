@@ -105,14 +105,19 @@ void AAkAmbientSound::StopAmbientSound()
 
 void AAkAmbientSound::StartPlaying()
 {
-	if( !IsCurrentlyPlaying() && AkComponent->AkAudioEvent )
+	if( !IsCurrentlyPlaying() )
 	{
 		FAkAudioDevice * AkAudioDevice = FAkAudioDevice::Get();
 		if( AkAudioDevice )
 		{
 			Playing( true );
 			AkAudioDevice->SetAttenuationScalingFactor(this, AkComponent->AttenuationScalingFactor);
-			if (AkAudioDevice->PostEvent( AkComponent->AkAudioEvent, this, AK_EndOfEvent, &AkAmbientSoundCallback, this, StopWhenOwnerIsDestroyed ) == AK_INVALID_PLAYING_ID)
+			FString EventName = AkComponent->EventName;
+			if (AkComponent->AkAudioEvent != NULL)
+			{
+				EventName = AkComponent->AkAudioEvent->GetName();
+			}
+			if (AkAudioDevice->PostEvent(EventName, this, AK_EndOfEvent, &AkAmbientSoundCallback, this, StopWhenOwnerIsDestroyed ) == AK_INVALID_PLAYING_ID)
 			{
 				Playing( false );
 			}

@@ -25,11 +25,6 @@ void SGenerateSoundBanks::Construct(const FArguments& InArgs, TArray<TWeakObject
 {
 	// Generate the list of banks and platforms
 	PopulateList();
-	if (PlatformNames.Num() == 0)
-	{
-		OpenMsgDlgInt(EAppMsgType::Ok, NSLOCTEXT("AkAudio", "Warning_Ak_PlatformSupported", "Unable to generate SoundBanks. Please select a valid Wwise supported platform in the 'Project Settings > Project > Supported Platforms' dialog."), LOCTEXT("AkAudio_Error", "Error"));
-		return;
-	}
 
 	// Build the form
 	ChildSlot

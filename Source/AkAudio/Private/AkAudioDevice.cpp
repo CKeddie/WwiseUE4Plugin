@@ -17,34 +17,12 @@
 #include "AkAudioClasses.h"
 #include "EditorSupportDelegates.h"
 #include "ISettingsModule.h"
-#include "IPluginManager.h"
 #include "Runtime/Launch/Resources/Version.h"
+#if PLATFORM_ANDROID
+#include "AndroidApplication.h"
+#endif
 
-// Register plugins that are static linked in this DLL.
-#include <AK/Plugin/AkSilenceSourceFactory.h>
-#include <AK/Plugin/AkSineSourceFactory.h>
-#include <AK/Plugin/AkToneSourceFactory.h>
-#include <AK/Plugin/AkPeakLimiterFXFactory.h>
-#include <AK/Plugin/AkMatrixReverbFXFactory.h>
-#include <AK/Plugin/AkParametricEQFXFactory.h>
-#include <AK/Plugin/AkDelayFXFactory.h>
-#include <AK/Plugin/AkExpanderFXFactory.h>
-#include <AK/Plugin/AkFlangerFXFactory.h>
-#include <AK/Plugin/AkCompressorFXFactory.h>
-#include <AK/Plugin/AkGainFXFactory.h>
-#include <AK/Plugin/AkHarmonizerFXFactory.h>
-#include <AK/Plugin/AkTimeStretchFXFactory.h>
-#include <AK/Plugin/AkPitchShifterFXFactory.h>
-#include <AK/Plugin/AkStereoDelayFXFactory.h>
-#include <AK/Plugin/AkMeterFXFactory.h>
-#include <AK/Plugin/AkGuitarDistortionFXFactory.h>
-#include <AK/Plugin/AkTremoloFXFactory.h>
-#include <AK/Plugin/AkRoomVerbFXFactory.h>
-#include <AK/Plugin/AkAudioInputSourceFactory.h>
-#include <AK/Plugin/AkSynthOneFactory.h>
-#include <AK/Plugin/AkConvolutionReverbFXFactory.h>
-// Add additional plug-ins here.
-
+#include <AK/Plugin/AllPluginsRegistrationHelpers.h>
 
 #if PLATFORM_XBOXONE
 	#include <apu.h>
@@ -207,7 +185,6 @@ bool FAkAudioDevice::Update( float DeltaTime )
 		UpdateListeners();
 	}
 
-
 	return true;
 }
 
@@ -352,16 +329,13 @@ void FAkAudioDevice::SetListener( int32 PlayerCharacterIndex, const FVector& Loc
 	}
 
 	m_listenerPositions[PlayerCharacterIndex] = Location;
-	FVectorsToAKTransform(Location, Front, Up, position);
+	FVectorToAKVector( Location, position.Position );
+	FVectorToAKVector( Front, position.OrientationFront );
+	FVectorToAKVector( Up, position.OrientationTop );
 
-	if (Front.X == 0.0 && Front.Y == 0.0 && Front.Z == 0.0)
+	if ( position.OrientationFront.X == 0.0 && position.OrientationFront.Y == 0.0 && position.OrientationFront.Z == 0.0 )
 	{
-		UE_LOG(LogAkAudio, Fatal, TEXT("Orientation Front vector invalid!"));
-	}
-
-	if (Up.X == 0.0 && Up.Y == 0.0 && Up.Z == 0.0)
-	{
-		UE_LOG(LogAkAudio, Fatal, TEXT("Orientation Up vector invalid!"));
+		UE_LOG(LogAkAudio, Fatal, TEXT("Orientation Front vector invalid!") );
 	}
 
 	if ( m_bSoundEngineInitialized )
@@ -372,7 +346,8 @@ void FAkAudioDevice::SetListener( int32 PlayerCharacterIndex, const FVector& Loc
 		if ( GIsEditor && PlayerCharacterIndex == 0)
 		{
 			AkSoundPosition sound_position;
-			FVectorsToAKTransform(Location, Front, Up, sound_position);
+			FVectorToAKVector( Location, sound_position.Position );
+			FVectorToAKVector( Front, sound_position.Orientation );
 			AK::SoundEngine::SetPosition( DUMMY_GAMEOBJ, sound_position );
 		}
 	}
@@ -992,7 +967,7 @@ void GetReverbVolumesOnTempEvent(FVector Loc, TArray<AkAuxSendValue>& AkReverbVo
 AkPlayingID FAkAudioDevice::PostEventAtLocation(
 	UAkAudioEvent * in_pEvent,
 	FVector in_Location,
-	FRotator in_Orientation,
+	FVector in_Orientation,
 	UWorld* in_World)
 {
 	AkPlayingID playingID = AK_INVALID_PLAYING_ID;
@@ -1015,7 +990,7 @@ AkPlayingID FAkAudioDevice::PostEventAtLocation(
 AkPlayingID FAkAudioDevice::PostEventAtLocation(
 	const FString& in_EventName,
 	FVector in_Location,
-	FRotator in_Orientation,
+	FVector in_Orientation,
 	UWorld* in_World)
 {
 	AkPlayingID playingID = AK_INVALID_PLAYING_ID;
@@ -1035,8 +1010,13 @@ AkPlayingID FAkAudioDevice::PostEventAtLocation(
 		SetAuxSends(objId, AkReverbVolumes);
 
 		AkSoundPosition soundpos;
-		FQuat tempQuat(in_Orientation);
-		FVectorsToAKTransform(in_Location, tempQuat.GetForwardVector(), tempQuat.GetUpVector(), soundpos);
+		FVectorToAKVector( in_Location, soundpos.Position );
+		FVectorToAKVector( in_Orientation, soundpos.Orientation );
+
+		if ( soundpos.Orientation.X == 0.0 && soundpos.Orientation.Y == 0.0 && soundpos.Orientation.Z == 0.0 )
+		{
+			UE_LOG(LogAkAudio, Error, TEXT("Orientation Front vector invalid!") );
+		}
 
 		AK::SoundEngine::SetPosition( objId, soundpos );
 
@@ -1680,7 +1660,11 @@ bool FAkAudioDevice::EnsureInitialized()
 	AkPlatformInitSettings platformInitSettings;
 	AK::SoundEngine::GetDefaultInitSettings( initSettings );
 	AK::SoundEngine::GetDefaultPlatformInitSettings( platformInitSettings );
-
+#if PLATFORM_ANDROID
+	extern JavaVM* GJavaVM;
+	platformInitSettings.pJavaVM = GJavaVM;
+	platformInitSettings.jNativeActivity = FAndroidApplication::GetGameActivityThis();
+#endif
 #if defined AK_WIN
 	// Make the sound to not be audible when the game is minimized.
 
@@ -1733,6 +1717,17 @@ bool FAkAudioDevice::EnsureInitialized()
 	}
 #endif
 #endif // AK_OPTIMIZED
+
+	// Register built-in plug-ins.
+	AK::SoundEngine::RegisterAllBuiltInPlugins();
+
+	// Plug-ins which require additional license.
+	AK::SoundEngine::RegisterConvolutionReverbPlugin();
+	// AK::SoundEngine::RegisterSoundSeedPlugins();
+	// AK::SoundEngine::RegisterMcDSPPlugins();
+	// AK::SoundEngine::RegisterAstoundSoundPlugins();
+	// AK::SoundEngine::RegisteriZotopePlugins();
+	// AK::SoundEngine::RegisterCrankcaseAudioPlugins();
 
 	//
 	// Setup banks path

@@ -21,7 +21,7 @@ The "*_Preview" branches are branches compatible with the various UE4 previews. 
 Source releases
 ---------------
 
-This integration is compatible with Unreal Engine 4.11 and 4.12 and their patch releases, and is based on Wwise 2016.1. You can download the latest Wwise version [here](http://www.audiokinetic.com/downloads/).
+This integration is compatible with Unreal Engine 4.11 and 4.12 and their patch releases, and is based on Wwise 2015.1.7. You can download the latest Wwise version [here](http://www.audiokinetic.com/downloads/).
 
 This repository only contains the source code for the plug-in. If you wish to download a pre-built version of the plug-in, please visit our [downloads page](http://www.audiokinetic.com/downloads/).
 
@@ -40,7 +40,7 @@ For more information on the difference between engine and installed plug-ins, pl
     ```bash
 git submodule add -f --name wwise https://github.com/audiokinetic/WwiseUE4Plugin.git Engine/Plugins/Wwise
 ```
-2. Since the Wwise UE4 integration may need to be rebuilt on the fly by the Unreal Editor during the packaging process, several folders from the Wwise SDK installation folder must be copied into the "Wwise" plug-in folder hierarchy. On Windows, the Wwise SDK will be found at `C:\Program Files (x86)\Audiokinetic\Wwise 2016.1.0.5775\SDK`, and on Mac, the Wwise SDK is found at `~/Wwise/Wwise 2016.1.0.5775/SDK`. The following folders are required:
+2. Since the Wwise UE4 integration may need to be rebuilt on the fly by the Unreal Editor during the packaging process, several folders from the Wwise SDK installation folder must be copied into the "Wwise" plug-in folder hierarchy. On Windows, the Wwise SDK will be found at `C:\Program Files (x86)\Audiokinetic\Wwise v2015.1.7 build 5584\SDK`, and on Mac, the Wwise SDK is found at `~/Wwise/Wwise v2015.1.7 build 5584/SDK`. The following folders are required:
 	* Include files:
 		* Source: `WWISESDK\include\*.*`
 		* Destination: `.../Plugins/Wwise/ThirdParty/include`

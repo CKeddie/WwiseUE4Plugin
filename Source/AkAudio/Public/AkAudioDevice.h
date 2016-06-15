@@ -283,7 +283,7 @@ public:
 	AkPlayingID PostEventAtLocation(
 		class UAkAudioEvent * in_pEvent,
 		FVector in_Location,
-		FRotator in_Orientation,
+		FVector in_Orientation,
 		class UWorld* in_World
 		);
 
@@ -297,7 +297,7 @@ public:
 	AkPlayingID PostEventAtLocation(
 		const FString& in_EventName,
 		FVector in_Location,
-		FRotator in_Orientation,
+		FVector in_Orientation,
 		class UWorld* in_World
 		);
 
@@ -652,20 +652,6 @@ public:
 		out_vect.X = -in_vect.X;
 		out_vect.Y = in_vect.Z;
 		out_vect.Z = in_vect.Y;
-	}
-
-	static inline void FVectorsToAKTransform(const FVector& in_Position, const FVector& in_Front, const FVector& in_Up, AkTransform& out_AkTransform)
-	{
-		AkVector Position;
-		AkVector Front;
-		AkVector Up;
-
-		FVectorToAKVector(in_Position, Position);
-		FVectorToAKVector(in_Front, Front);
-		FVectorToAKVector(in_Up, Up);
-
-		// Convert from the UE axis system to the Wwise axis system
-		out_AkTransform.Set(Position, Front, Up);
 	}
 
 	FAkBankManager * GetAkBankManager()

@@ -40,6 +40,8 @@
 	#include <AK/SoundEngine/Common/AkQueryParameters.h>
 #endif
 
+#include <AK/Plugin/AllPluginsFactories.h>
+
 // Stream IO hooks
 #include "AkDefaultIOHookDeferred.h"
 #ifdef AK_USE_UNREAL_IO

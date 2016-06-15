@@ -333,10 +333,6 @@ void CreateGenerateSoundBankWindow(TArray<TWeakObjectPtr<UAkAudioBank>>* pSoundB
 		.FocusWhenFirstShown(true);
 
 	TSharedRef<SGenerateSoundBanks> WindowContent = SNew(SGenerateSoundBanks, pSoundBanks);
-	if (!WindowContent->ShouldDisplayWindow())
-	{
-		return;
-	}
 
 	// Add our SGenerateSoundBanks to the window
 	WidgetWindow->SetContent( WindowContent );

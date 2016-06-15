@@ -180,7 +180,9 @@ protected:
 	/**
 	 * Global callback to Sound Engine.
 	 */
-	static void GlobalCallback(AK::IAkGlobalPluginContext * in_pContext, AkGlobalCallbackLocation in_eLocation, void * in_pCookie);
+	static void GlobalCallback(
+		bool in_bLastCall
+		);
 
 	/** True if global callback was registered to the sound engine. */
 	bool		m_bCallbackRegistered;

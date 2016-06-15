@@ -49,8 +49,7 @@ public class AkAudio : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "SlateCore",
-                "NetworkReplayStreaming",
-                "Projects"
+                "NetworkReplayStreaming"
             });
 
         string akDir = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../ThirdParty"));
@@ -163,6 +162,7 @@ public class AkAudio : ModuleRules
 
             PublicAdditionalLibraries.Add("dsound.lib");
             PublicAdditionalLibraries.Add("dxguid.lib");
+            PublicAdditionalLibraries.Add("AkMP3Source.lib");
             PublicAdditionalLibraries.Add("Msacm32.lib");
             PublicAdditionalLibraries.Add("XInput.lib");
         }

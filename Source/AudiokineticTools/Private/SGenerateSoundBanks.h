@@ -28,8 +28,6 @@ public:
 		return true;
 	}
 
-	bool ShouldDisplayWindow() { return PlatformNames.Num() != 0; }
-
 private:
 	void PopulateList();
 

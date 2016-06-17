@@ -19,6 +19,9 @@
 #include "ISettingsModule.h"
 #include "IPluginManager.h"
 #include "Runtime/Launch/Resources/Version.h"
+#if PLATFORM_ANDROID
+#include "AndroidApplication.h"
+#endif
 
 // Register plugins that are static linked in this DLL.
 #include <AK/Plugin/AkSilenceSourceFactory.h>
@@ -1680,7 +1683,11 @@ bool FAkAudioDevice::EnsureInitialized()
 	AkPlatformInitSettings platformInitSettings;
 	AK::SoundEngine::GetDefaultInitSettings( initSettings );
 	AK::SoundEngine::GetDefaultPlatformInitSettings( platformInitSettings );
-
+#if PLATFORM_ANDROID
+	extern JavaVM* GJavaVM;
+	platformInitSettings.pJavaVM = GJavaVM;
+	platformInitSettings.jNativeActivity = FAndroidApplication::GetGameActivityThis();
+#endif
 #if defined AK_WIN
 	// Make the sound to not be audible when the game is minimized.
 

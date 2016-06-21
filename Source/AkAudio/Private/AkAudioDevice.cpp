@@ -1729,19 +1729,22 @@ bool FAkAudioDevice::EnsureInitialized()
 	}
 
 	// OCULUS_START vhamm audio redirect with build of wwise >= 2015.1.5
-#if AK_WWISESDK_VERSION_BUILD >= 5528
 	if (IHeadMountedDisplayModule::IsAvailable())
 	{
+		FString AudioOutputDevice;
+#if ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION >= 12
+		IHeadMountedDisplayModule& Hmd = IHeadMountedDisplayModule::Get();
+		AudioOutputDevice = Hmd.GetAudioOutputDevice();
+#elif ENGINE_MAJOR_VERSION == 4 && ENGINE_MINOR_VERSION == 11 && ENGINE_PATCH_VERSION >= 1
 		FHeadMountedDisplayModuleExt* const HmdEx = FHeadMountedDisplayModuleExt::GetExtendedInterface(&IHeadMountedDisplayModule::Get());
-		FString AudioOutputDevice = HmdEx ? HmdEx->GetAudioOutputDevice() : FString();
+		AudioOutputDevice = HmdEx ? HmdEx->GetAudioOutputDevice() : FString();
+#endif
 
 		if(!AudioOutputDevice.IsEmpty())
 		{
-			initSettings.eMainOutputType = AkAudioAPI::AkAPI_Wasapi;
 			platformInitSettings.idAudioDevice = AK::GetDeviceIDFromName((wchar_t*) *AudioOutputDevice);
 		}
 	}
-#endif
 	// OCULUS_END
 
 #endif
